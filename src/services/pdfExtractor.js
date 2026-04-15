@@ -2,6 +2,7 @@ const fs = require("fs/promises");
 const os = require("os");
 const path = require("path");
 const { pathToFileURL } = require("url");
+const { PDFParse } = require("pdf-parse");
 const { HfInference } = require("@huggingface/inference");
 const { createCanvas } = require("@napi-rs/canvas");
 const { createWorker } = require("tesseract.js");
@@ -28,6 +29,19 @@ function textLooksGarbage(text) {
 }
 
 async function extractTextWithOcrFallback(filePath) {
+  if (process.env.VERCEL) {
+    // Vercel bundles may omit pdfjs worker artifacts used by rendering paths.
+    // Use pdf-parse text extraction directly in serverless runtime.
+    const data = await fs.readFile(filePath);
+    const parser = new PDFParse({ data: Uint8Array.from(data) });
+    try {
+      const parsed = await parser.getText({});
+      return String(parsed?.text || "");
+    } finally {
+      await parser.destroy().catch(() => {});
+    }
+  }
+
   const getDocument = await getPdfJsGetDocument();
   const fileUrl = pathToFileURL(filePath).href;
   const loadingTask = getDocument({ url: fileUrl, disableWorker: true });
