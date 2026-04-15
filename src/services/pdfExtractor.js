@@ -12,10 +12,6 @@ const hfToken = process.env.HF_TOKEN || "";
 const canUseHf = hfToken.startsWith("hf_");
 const hfClient = canUseHf ? new HfInference(hfToken) : null;
 
-function resolvePdfParseCtor(mod) {
-  return mod?.PDFParse || mod?.default?.PDFParse || mod?.default || null;
-}
-
 let cachedGetDocument = null;
 async function getPdfJsGetDocument() {
   if (cachedGetDocument) return cachedGetDocument;
@@ -32,25 +28,6 @@ function textLooksGarbage(text) {
 }
 
 async function extractTextWithOcrFallback(filePath) {
-  if (process.env.VERCEL) {
-    const pdfParseMod = await import("pdf-parse");
-    const PDFParse = resolvePdfParseCtor(pdfParseMod);
-    if (!PDFParse || typeof PDFParse !== "function") {
-      throw new Error("Unable to initialize PDF parser in Vercel runtime.");
-    }
-    const pdfParseEntry = require.resolve("pdf-parse");
-    const workerPath = path.join(path.dirname(pdfParseEntry), "pdf.worker.mjs");
-    PDFParse.setWorker(pathToFileURL(workerPath).href);
-    const data = await fs.readFile(filePath);
-    const parser = new PDFParse({ data: Uint8Array.from(data) });
-    try {
-      const parsed = await parser.getText({});
-      return String(parsed?.text || "");
-    } finally {
-      await parser.destroy().catch(() => {});
-    }
-  }
-
   const getDocument = await getPdfJsGetDocument();
   const fileUrl = pathToFileURL(filePath).href;
   const loadingTask = getDocument({ url: fileUrl, disableWorker: true });
@@ -71,6 +48,11 @@ async function extractTextWithOcrFallback(filePath) {
   }
 
   if (directText && !textLooksGarbage(directText)) {
+    return directText;
+  }
+
+  if (process.env.VERCEL) {
+    // Keep Vercel runtime stable: skip OCR/rendering fallback in serverless.
     return directText;
   }
 
