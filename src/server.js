@@ -1,6 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
+const os = require("os");
 const fs = require("fs/promises");
 require("dotenv").config();
 
@@ -17,7 +18,7 @@ app.use((req, _res, next) => {
   next();
 });
 
-const uploadDir = path.join(__dirname, "..", "tmp");
+const uploadDir = process.env.VERCEL ? os.tmpdir() : path.join(__dirname, "..", "tmp");
 const storage = multer.diskStorage({
   destination: async (_req, _file, cb) => {
     try {
