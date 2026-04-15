@@ -12,6 +12,10 @@ const hfToken = process.env.HF_TOKEN || "";
 const canUseHf = hfToken.startsWith("hf_");
 const hfClient = canUseHf ? new HfInference(hfToken) : null;
 
+function resolvePdfParseCtor(mod) {
+  return mod?.PDFParse || mod?.default?.PDFParse || mod?.default || null;
+}
+
 let cachedGetDocument = null;
 async function getPdfJsGetDocument() {
   if (cachedGetDocument) return cachedGetDocument;
@@ -30,7 +34,11 @@ function textLooksGarbage(text) {
 async function extractTextWithOcrFallback(filePath) {
   if (process.env.VERCEL) {
     // Use node-specific entrypoint to avoid browser worker loading on Vercel.
-    const { PDFParse } = await import("pdf-parse/node");
+    const pdfParseMod = await import("pdf-parse/node");
+    const PDFParse = resolvePdfParseCtor(pdfParseMod);
+    if (!PDFParse || typeof PDFParse !== "function") {
+      throw new Error("Unable to initialize PDF parser in Vercel runtime.");
+    }
     const data = await fs.readFile(filePath);
     const parser = new PDFParse({ data: Uint8Array.from(data) });
     try {
