@@ -38,7 +38,8 @@ async function extractTextWithOcrFallback(filePath) {
     if (!PDFParse || typeof PDFParse !== "function") {
       throw new Error("Unable to initialize PDF parser in Vercel runtime.");
     }
-    const workerPath = require.resolve("pdfjs-dist/legacy/build/pdf.worker.mjs");
+    const pdfParseEntry = require.resolve("pdf-parse");
+    const workerPath = path.join(path.dirname(pdfParseEntry), "pdf.worker.mjs");
     PDFParse.setWorker(pathToFileURL(workerPath).href);
     const data = await fs.readFile(filePath);
     const parser = new PDFParse({ data: Uint8Array.from(data) });
