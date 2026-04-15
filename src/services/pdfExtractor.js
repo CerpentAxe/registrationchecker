@@ -59,11 +59,6 @@ async function extractTextWithOcrFallback(filePath) {
     return directText;
   }
 
-  if (process.env.VERCEL) {
-    // Keep Vercel runtime stable: skip OCR/rendering fallback in serverless.
-    return directText || parsedText;
-  }
-
   const ocrLoadingTask = getDocument({ url: fileUrl, disableWorker: true });
   const ocrPdf = await ocrLoadingTask.promise;
   const worker = await createWorker("eng");
@@ -174,7 +169,7 @@ function fallbackRuleBasedExtraction(text) {
       registrationDate: singleRegistrationDate,
       rawExtract: normalized.slice(0, 4000),
     },
-  ].filter((item) => item.applicationNumber || item.classes || item.applicant);
+  ];
 }
 
 function sanitizeItems(items) {
@@ -205,7 +200,14 @@ function sanitizeItems(items) {
     .filter((item) => {
       item.applicationDate = formatDateDDMMYYYY(item.applicationDate);
       item.registrationDate = formatDateDDMMYYYY(item.registrationDate);
-      return item.applicationNumber || item.registrationNumber || item.classes || item.applicant || item.specification;
+      return (
+        item.applicationNumber ||
+        item.registrationNumber ||
+        item.classes ||
+        item.applicant ||
+        item.specification ||
+        item.rawExtract
+      );
     });
 }
 
