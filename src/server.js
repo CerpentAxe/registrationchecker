@@ -4,12 +4,6 @@ const path = require("path");
 const fs = require("fs/promises");
 require("dotenv").config();
 
-const { extractTrademarksFromPdf } = require("./services/pdfExtractor");
-const {
-  extractTrademarksFromExcel,
-  extractTrademarksFromExcelBuffer,
-} = require("./services/excelExtractor");
-const { compareTrademarkLists } = require("./services/comparisonService");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -46,6 +40,7 @@ app.post("/api/upload/pdf", upload.single("pdf"), async (req, res) => {
   }
 
   try {
+    const { extractTrademarksFromPdf } = require("./services/pdfExtractor");
     const items = await extractTrademarksFromPdf(req.file.path);
     res.json({ items });
   } catch (err) {
@@ -65,6 +60,7 @@ app.post("/api/upload/excel", upload.single("excel"), async (req, res) => {
   }
 
   try {
+    const { extractTrademarksFromExcel } = require("./services/excelExtractor");
     const result = await extractTrademarksFromExcel(req.file.path);
     console.log("[API] excel debug:", result.debug);
     res.json(result);
@@ -78,6 +74,7 @@ app.post("/api/upload/excel", upload.single("excel"), async (req, res) => {
 
 app.post("/api/upload/excel-json", async (req, res) => {
   try {
+    const { extractTrademarksFromExcelBuffer } = require("./services/excelExtractor");
     const { fileBase64 } = req.body || {};
     if (!fileBase64) {
       return res.status(400).json({ error: "Excel file data is required." });
@@ -103,6 +100,7 @@ app.use((err, _req, res, _next) => {
 });
 
 app.post("/api/compare", (req, res) => {
+  const { compareTrademarkLists } = require("./services/comparisonService");
   const { pdfItems = [], excelItems = [] } = req.body || {};
   const comparisons = compareTrademarkLists(pdfItems, excelItems);
   res.json({ comparisons });
