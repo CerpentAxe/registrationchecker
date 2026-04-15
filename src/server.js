@@ -108,6 +108,10 @@ app.post("/api/compare", (req, res) => {
   res.json({ comparisons });
 });
 
-app.listen(port, () => {
-  console.log(`Registration checker running on http://localhost:${port}`);
-});
+if (require.main === module) {
+  app.listen(port, () => {
+    console.log(`Registration checker running on http://localhost:${port}`);
+  });
+}
+
+module.exports = app;
