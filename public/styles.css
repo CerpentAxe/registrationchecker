@@ -1,0 +1,248 @@
+* {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: linear-gradient(180deg, #eef3ff 0%, #f7f9fd 100%);
+  color: #1f2a37;
+}
+
+header,
+.controls,
+main,
+#comparison-section {
+  width: min(1300px, 95%);
+  margin: 16px auto;
+}
+
+.controls {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 12px;
+  border: 1px solid #dbe1ea;
+  box-shadow: 0 8px 30px rgba(35, 63, 120, 0.08);
+}
+
+#upload-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: end;
+}
+
+.dropzone-wrap {
+  min-width: 230px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+}
+
+button {
+  background: linear-gradient(135deg, #2b5dd7 0%, #3f7aff 100%);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: transform 0.14s ease, box-shadow 0.14s ease, opacity 0.14s ease;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(43, 93, 215, 0.28);
+}
+
+button:disabled {
+  background: #95a3bf;
+  cursor: not-allowed;
+}
+
+.dropzone {
+  margin-top: 6px;
+  border: 2px dashed #b8c5da;
+  background: #f8fbff;
+  color: #40506a;
+  border-radius: 6px;
+  padding: 10px;
+  text-align: center;
+  font-size: 13px;
+  transition: all 0.15s ease-in-out;
+}
+
+.dropzone.drag-over {
+  border-color: #2b5dd7;
+  background: #eaf1ff;
+  color: #1b3f99;
+}
+
+.paired-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.paired-header h3 {
+  margin: 0;
+}
+
+.paired-list {
+  min-height: 220px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #dbe1ea;
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 8px 30px rgba(35, 63, 120, 0.08);
+}
+
+.paired-row-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  border: 1px solid #d8e1ef;
+  border-radius: 12px;
+  background: #f8fbff;
+  padding: 8px;
+  margin-bottom: 10px;
+}
+
+.paired-cell .card {
+  margin-bottom: 0;
+}
+
+.row-comparison {
+  grid-column: 1 / -1;
+  border-top: 1px solid #dce5f3;
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #ccd5e3;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 8px;
+  cursor: grab;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(30, 45, 85, 0.12);
+}
+
+.card.removed {
+  opacity: 0.65;
+  background: #f8fafc;
+}
+
+.card.placeholder {
+  border-style: dashed;
+  background: #f9fbff;
+  cursor: default;
+  box-shadow: none;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+  margin-top: 8px;
+}
+
+.grid p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.comparison-card {
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid #dbe1ea;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 8px 30px rgba(35, 63, 120, 0.09);
+}
+
+.pair-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.pair-col {
+  border: 1px solid #e0e7f2;
+  border-radius: 10px;
+  padding: 10px;
+  background: #fbfcff;
+}
+
+.pair-col h4 {
+  margin: 0 0 8px 0;
+}
+
+.result-title {
+  margin: 10px 0 2px 0;
+}
+
+.field-row {
+  border-top: 1px solid #edf1f6;
+  padding-top: 8px;
+  margin-top: 8px;
+}
+
+.field-row.bad {
+  background: #fff7f7;
+  border-radius: 6px;
+  padding: 8px;
+}
+
+.field-values {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.diff-red {
+  color: #b30000;
+  background: #ffe6e6;
+  padding: 0 2px;
+}
+
+.manual-checks {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.inline-manual {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.muted {
+  color: #718096;
+}

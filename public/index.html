@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registration Checker</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Trade Mark Registration Checker</h1>
+      <p>Compare extracted registration certificate details against Excel source data.</p>
+      <p>
+        Drag and drop the PDF registration certificates that you want to check in a single PDF
+        document. In
+        <a href="https://vortal.vonseidels.local/client-portfolio-report" target="_blank" rel="noopener noreferrer">Vortal</a>
+        create a portfolio report for the client [Country: South Africa | Make sure that 12 items
+        are selected (next to Export)] by adding the client name and then selecting selecting
+        Export. Drag and drop the downloaded Excel file below. Extract PDF, then Extract Excel,
+        then Compare Text
+      </p>
+    </header>
+
+    <section class="controls">
+      <form id="upload-form">
+        <div class="dropzone-wrap">
+          <label>
+            PDF certificates
+            <input type="file" id="pdf-file" accept=".pdf" required />
+          </label>
+          <div class="dropzone" id="pdf-dropzone" data-target="pdf-file">
+            Drag and drop PDF here
+          </div>
+        </div>
+        <div class="dropzone-wrap">
+          <label>
+            Excel data
+            <input type="file" id="excel-file" accept=".xlsx,.xls,.csv" required />
+          </label>
+          <div class="dropzone" id="excel-dropzone" data-target="excel-file">
+            Drag and drop Excel here
+          </div>
+        </div>
+        <button type="button" id="extract-pdf-btn">1) Extract PDF</button>
+        <button type="button" id="extract-excel-btn" disabled>2) Extract Excel</button>
+        <button id="compare-btn" disabled>3) Compare Text</button>
+      </form>
+    </section>
+
+    <main>
+      <section>
+        <h2>Paired Trade Mark Details</h2>
+        <div class="paired-header">
+          <h3>PDF Extracted Details</h3>
+          <h3>Excel Extracted Details</h3>
+        </div>
+        <div id="paired-list" class="paired-list"></div>
+      </section>
+    </main>
+
+    <section id="comparison-section">
+      <div id="comparison-results"></div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+    <script src="/app.js"></script>
+  </body>
+</html>
