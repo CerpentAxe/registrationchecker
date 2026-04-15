@@ -2,6 +2,7 @@ const fs = require("fs/promises");
 const os = require("os");
 const path = require("path");
 const { pathToFileURL } = require("url");
+const pdfParse = require("pdf-parse");
 const { HfInference } = require("@huggingface/inference");
 const { createCanvas } = require("@napi-rs/canvas");
 const { createWorker } = require("tesseract.js");
@@ -28,6 +29,13 @@ function textLooksGarbage(text) {
 }
 
 async function extractTextWithOcrFallback(filePath) {
+  const data = await fs.readFile(filePath);
+  const parsed = await pdfParse(data).catch(() => ({ text: "" }));
+  const parsedText = String(parsed?.text || "");
+  if (parsedText && !textLooksGarbage(parsedText)) {
+    return parsedText;
+  }
+
   const getDocument = await getPdfJsGetDocument();
   const fileUrl = pathToFileURL(filePath).href;
   const loadingTask = getDocument({ url: fileUrl, disableWorker: true });
@@ -53,7 +61,7 @@ async function extractTextWithOcrFallback(filePath) {
 
   if (process.env.VERCEL) {
     // Keep Vercel runtime stable: skip OCR/rendering fallback in serverless.
-    return directText;
+    return directText || parsedText;
   }
 
   const ocrLoadingTask = getDocument({ url: fileUrl, disableWorker: true });
