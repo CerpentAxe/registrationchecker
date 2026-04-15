@@ -3,7 +3,6 @@ const os = require("os");
 const path = require("path");
 const { pathToFileURL } = require("url");
 const { HfInference } = require("@huggingface/inference");
-const { getDocument } = require("pdfjs-dist/legacy/build/pdf.mjs");
 const { createCanvas } = require("@napi-rs/canvas");
 const { createWorker } = require("tesseract.js");
 const { formatDateDDMMYYYY } = require("./dateUtils");
@@ -13,6 +12,14 @@ const hfToken = process.env.HF_TOKEN || "";
 const canUseHf = hfToken.startsWith("hf_");
 const hfClient = canUseHf ? new HfInference(hfToken) : null;
 
+let cachedGetDocument = null;
+async function getPdfJsGetDocument() {
+  if (cachedGetDocument) return cachedGetDocument;
+  const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  cachedGetDocument = pdfjs.getDocument;
+  return cachedGetDocument;
+}
+
 function textLooksGarbage(text) {
   const cleaned = String(text || "").replace(/\s+/g, "");
   if (!cleaned) return true;
@@ -21,6 +28,7 @@ function textLooksGarbage(text) {
 }
 
 async function extractTextWithOcrFallback(filePath) {
+  const getDocument = await getPdfJsGetDocument();
   const fileUrl = pathToFileURL(filePath).href;
   const loadingTask = getDocument({ url: fileUrl, disableWorker: true });
   const pdf = await loadingTask.promise;
