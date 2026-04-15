@@ -33,12 +33,13 @@ function textLooksGarbage(text) {
 
 async function extractTextWithOcrFallback(filePath) {
   if (process.env.VERCEL) {
-    // Use node-specific entrypoint to avoid browser worker loading on Vercel.
-    const pdfParseMod = await import("pdf-parse/node");
+    const pdfParseMod = await import("pdf-parse");
     const PDFParse = resolvePdfParseCtor(pdfParseMod);
     if (!PDFParse || typeof PDFParse !== "function") {
       throw new Error("Unable to initialize PDF parser in Vercel runtime.");
     }
+    const workerPath = require.resolve("pdfjs-dist/legacy/build/pdf.worker.mjs");
+    PDFParse.setWorker(pathToFileURL(workerPath).href);
     const data = await fs.readFile(filePath);
     const parser = new PDFParse({ data: Uint8Array.from(data) });
     try {
