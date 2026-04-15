@@ -1,11 +1,5 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "src/server.js",
-      "use": "@vercel/node"
-    }
-  ],
   "functions": {
     "src/server.js": {
       "includeFiles": "node_modules/pdfjs-dist/legacy/build/**"
