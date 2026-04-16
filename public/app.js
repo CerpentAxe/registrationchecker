@@ -27,6 +27,7 @@ const API_BASE =
   window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
     ? "http://localhost:3000"
     : "";
+const REQUEST_TIMEOUT_MS = 60000;
 
 const state = {
   pdfItems: [],
@@ -239,13 +240,24 @@ function attachRemoveHandler(listEl) {
 async function uploadSingle(endpoint, fieldName, file) {
   const formData = new FormData();
   formData.append(fieldName, file);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
   let response;
   try {
-    response = await fetch(`${API_BASE}${endpoint}`, { method: "POST", body: formData });
+    response = await fetch(`${API_BASE}${endpoint}`, {
+      method: "POST",
+      body: formData,
+      signal: controller.signal,
+    });
   } catch (err) {
+    clearTimeout(timeout);
+    if (err?.name === "AbortError") {
+      throw new Error(`Request timed out after ${REQUEST_TIMEOUT_MS / 1000}s: ${endpoint}`);
+    }
     // Some environments fail multipart fetch intermittently; fall back to XHR.
     return uploadSingleWithXhr(endpoint, fieldName, file);
   }
+  clearTimeout(timeout);
   if (!response.ok) {
     const raw = await response.text().catch(() => "");
     let message = `Request failed: ${endpoint} (HTTP ${response.status})`;
@@ -301,11 +313,15 @@ function uploadExcelAsJson(file) {
       try {
         const result = String(reader.result || "");
         const base64 = result.includes(",") ? result.split(",")[1] : result;
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
         const response = await fetch(`${API_BASE}/api/upload/excel-json`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ fileBase64: base64 }),
+          signal: controller.signal,
         });
+        clearTimeout(timeout);
         const raw = await response.text().catch(() => "");
         if (!response.ok) {
           let message = `Request failed: /api/upload/excel-json (HTTP ${response.status})`;
@@ -320,6 +336,10 @@ function uploadExcelAsJson(file) {
         }
         resolve(JSON.parse(raw || "{}"));
       } catch (err) {
+        if (err?.name === "AbortError") {
+          reject(new Error(`Request timed out after ${REQUEST_TIMEOUT_MS / 1000}s: /api/upload/excel-json`));
+          return;
+        }
         reject(new Error(err?.message || "Excel JSON upload failed."));
       }
     };

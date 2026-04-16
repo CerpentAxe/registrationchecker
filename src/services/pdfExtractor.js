@@ -59,6 +59,11 @@ async function extractTextWithOcrFallback(filePath) {
     return directText;
   }
 
+  if (process.env.VERCEL) {
+    // Avoid long-running OCR in serverless runtime to prevent request hangs/timeouts.
+    return directText || parsedText;
+  }
+
   const ocrLoadingTask = getDocument({ url: fileUrl, disableWorker: true });
   const ocrPdf = await ocrLoadingTask.promise;
   const worker = await createWorker("eng");
